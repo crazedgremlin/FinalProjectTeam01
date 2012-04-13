@@ -114,9 +114,13 @@ void drawScreen() {
 */
 void drawBoard() {
     int x, y;
-    int sqrWidth = WIDTH / numSquaresOnSide;
-    int sqrHeight = HEIGHT / numSquaresOnSide;
+    float xPos, yPos;
+    int x1, y1, x2, y2;
+    float sqrWidth = 1.*WIDTH / numSquaresOnSide;
+    float sqrHeight = 1.*HEIGHT / numSquaresOnSide;
     bool evenCol, sqrOn;
+
+
     // represents which color this column should start with
     evenCol = false;
 
@@ -128,20 +132,32 @@ void drawBoard() {
         sqrHeight = 1;
 
 
-    for (x = 0; x < WIDTH; x += sqrWidth) {
+    // draw the checkerboard
+    for (x = 0; x < numSquaresOnSide; x++) {
         
+        xPos = x * sqrWidth;
+
         evenCol = !evenCol;
         sqrOn = evenCol;
 
-        for (y = 0; y<HEIGHT; y += sqrHeight) {
+        for (y = 0; y<numSquaresOnSide; y++) {
+
+            yPos = y * sqrHeight;
+
             sqrOn = !sqrOn;
 
             if (sqrOn) {
+
+                x1 = (int)(xPos + 0.5);
+                x2 = (int)(xPos + sqrWidth + 0.5);
+                y1 = (int)(yPos + 0.5);
+                y2 = (int)(yPos + sqrHeight + 0.5);
+
                 glBegin(GL_QUADS);
-                glVertex2f(x,y);
-                glVertex2f(x+sqrWidth, y);
-                glVertex2f(x+sqrWidth, y+sqrHeight);
-                glVertex2f(x, y+sqrHeight);
+                glVertex2f(x1, y1);
+                glVertex2f(x2, y1);
+                glVertex2f(x2, y2);
+                glVertex2f(x1, y2);
                 glEnd();
             }
         }
