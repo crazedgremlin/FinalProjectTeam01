@@ -47,7 +47,7 @@ int main(int argc, char* argv[]) {
     }
 
     // check to see that required arguments were specified
-    if (numSquaresOnSide == -1) {
+    if (numSquaresOnSide == -1 || numSquaresOnSide <= 1) {
         printf("Defaulting to n=8\n");
         numSquaresOnSide = 8;
     }
