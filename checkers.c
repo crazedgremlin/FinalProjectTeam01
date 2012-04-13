@@ -114,9 +114,16 @@ void drawBoard() {
     int sqrWidth = WIDTH / numSquaresOnSide;
     int sqrHeight = HEIGHT / numSquaresOnSide;
     bool evenCol, sqrOn;
-
     // represents which color this column should start with
     evenCol = false;
+
+
+    // avoid the oncoming infinite loop if square width or height is zero
+    if (sqrWidth == 0)
+        sqrWidth = 1;
+    if (sqrHeight == 0)
+        sqrHeight = 1;
+
 
     for (x = 0; x < WIDTH; x += sqrWidth) {
         
