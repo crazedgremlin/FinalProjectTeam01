@@ -5,14 +5,10 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
-/*
-
-ARGUMENTS
-
-    [--nVal (-n)]           Number of squares on each side of the board.
-                            Default is 8.
-
-*/
+const char* HELP_STR =
+"ARGUMENTS\n\n"
+"    [--nVal (-n)]           Number of squares on each side of the board.\n"
+"                            Default is 8.\n";
 
 const int WIDTH = 640;
 const int HEIGHT = 640;
@@ -40,7 +36,11 @@ int main(int argc, char* argv[]) {
         // for checking if two strings are equal is !strcmp(a,b)
         if (!strcmp(argLabel, "--nVal") || !strcmp(argLabel, "-n")) {
             numSquaresOnSide = atoi(argVal);
+        } else if (!strcmp(argLabel, "--help")) {
+            printf("%s", HELP_STR);
+            return 0;
         }
+
 
         argNum++;
     }
