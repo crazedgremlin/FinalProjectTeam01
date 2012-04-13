@@ -19,8 +19,7 @@ const int HEIGHT = 640;
 
 int numSquaresOnSide = -1;
 
-
-void myInit();
+void init();
 void drawScreen();
 void drawBoard();
 void drawPieces();
@@ -52,8 +51,6 @@ int main(int argc, char* argv[]) {
         numSquaresOnSide = 8;
     }
 
-
-
     // GLUT setup stuff
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGBA);
@@ -68,7 +65,9 @@ int main(int argc, char* argv[]) {
 }
 
 
-
+/*
+    Set up screen stuff
+*/
 void init() {
     // disable z axis
     glDisable(GL_DEPTH_TEST);
@@ -94,7 +93,9 @@ void init() {
 
 
 
-
+/*
+    Display the state of the game visually
+*/
 void drawScreen() {
     // clear the screen
     glClear(GL_COLOR_BUFFER_BIT);
@@ -108,7 +109,9 @@ void drawScreen() {
 }
 
 
-
+/*
+    Draw the checkerboard pattern
+*/
 void drawBoard() {
     int x, y;
     int sqrWidth = WIDTH / numSquaresOnSide;
@@ -145,8 +148,9 @@ void drawBoard() {
     }
 }
 
-
-
+/*
+    Draw the positions of the players' pieces
+*/
 void drawPieces() {
 
 
