@@ -1,9 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <GLUT/glut.h>
+
 #include <sys/types.h>
 #include <sys/socket.h>
+
+#ifdef __APPLE__
+    #include <GLUT/glut.h>
+#else
+    #include <GL/glut.h>
+#endif
+
 
 const char* HELP_STR =
 "ARGUMENTS\n\n"
