@@ -22,6 +22,7 @@ const int HEIGHT = 640;
 
 int numSquaresOnSide = -1;
 
+bool procArgs(int argc, char* argv[]);
 void init();
 void drawScreen();
 void drawBoard();
@@ -29,9 +30,34 @@ void drawPieces();
 
 
 int main(int argc, char* argv[]) {
+
+    bool goodArgs = procArgs(argc, argv);
+    if (!goodArgs)
+        return 1;
+
+    // GLUT setup stuff
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGBA);
+    glutInitWindowSize(WIDTH, HEIGHT);
+    glutCreateWindow("Test!");
+
+    // register display callback
+    glutDisplayFunc(drawScreen);
+        
+    init();
+    glutMainLoop();
+
+    return 0;
+}
+
+
+/*
+    Process command-line arguments. Return false if the program should
+    quit right away. Return true if we should continue.
+*/
+bool procArgs(int argc, char* argv[]) {
     int argNum;
     char* argLabel, *argVal;
-
 
     // read in all arguments
     argNum=1;
@@ -45,7 +71,7 @@ int main(int argc, char* argv[]) {
             numSquaresOnSide = atoi(argVal);
         } else if (!strcmp(argLabel, "--help")) {
             printf("%s", HELP_STR);
-            return 0;
+            return false;
         }
 
 
@@ -58,17 +84,7 @@ int main(int argc, char* argv[]) {
         numSquaresOnSide = 8;
     }
 
-    // GLUT setup stuff
-    glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGBA);
-    glutInitWindowSize(WIDTH, HEIGHT);
-    glutCreateWindow("Test!");
-
-    // register display callback
-    glutDisplayFunc(drawScreen);
-        
-    init();
-    glutMainLoop();
+    return true;
 }
 
 
@@ -121,8 +137,8 @@ void drawScreen() {
 */
 void drawBoard() {
     int x, y;
-    float xPos, yPos;
     int x1, y1, x2, y2;
+    float xPos, yPos;
     float sqrWidth = 1.*WIDTH / numSquaresOnSide;
     float sqrHeight = 1.*HEIGHT / numSquaresOnSide;
     bool evenCol, sqrOn;
