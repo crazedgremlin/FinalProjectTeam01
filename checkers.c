@@ -29,28 +29,36 @@ const char* HELP_STR =
 "    P                       prints the board to STDOUT\n"
 ;
 
+// different types of players
 enum player {
     PLAYER_ONE,
     PLAYER_TWO,
     NO_PLAYER
 };
 
+// possible modes of operation
 enum modeType {
     SERVER,
     CLIENT
 };
 
+// command line options
 enum modeType mode;
 int numSquaresOnSide = -1;
 int port = 1024;
-char **board;
 
+// display options
+bool drawLabels = false;
+
+// used for dragging a piece with mouse
 bool dragging = false;
 char dragType = ' ';
 int dragXFrom, dragYFrom;
 int mouseX, mouseY;
 
-bool drawLabels = false;
+// other globals
+char **board;
+
 
 bool procArgs(int argc, char* argv[]);
 void init();
@@ -458,6 +466,8 @@ bool isValidMove(enum player p, bool isKing, int x1, int y1, int x2, int y2) {
             jumped = board[bx][by];
             if ((p == PLAYER_ONE && (jumped == 'Y' || jumped == 'L')) ||
                 (p == PLAYER_TWO && (jumped == 'X' || jumped == 'K'))) {
+
+                printf("Piece at (%d, %d) was taken.\n", bx, by);
                 board[bx][by] = ' ';
                 return true;
             }
@@ -482,7 +492,9 @@ void mouseFunc(int button, int state, int x, int y) {
     if (button == GLUT_LEFT_BUTTON) {
 
         if (state == GLUT_DOWN) {
-            if (!dragging) {
+
+            if (!dragging) { // pick up a piece
+
                 dragging = true;
                 decideBoardCoords(x, y, &dragXFrom, &dragYFrom);
                 dragType = board[dragXFrom][dragYFrom];
@@ -498,29 +510,31 @@ void mouseFunc(int button, int state, int x, int y) {
                 printf("dragging piece @ (%d, %d)\n", dragXFrom, dragYFrom);
             }
         } else {
-            dragging = false;
-        
-            decideBoardCoords(x, y, &dragXTo, &dragYTo);
 
-            playerNum = determinePlayer(dragType);
-            isKing = dragType == 'K' || dragType == 'L';
-            // determine if this is a valid location to drop the piece
-            if (isValidMove(playerNum, isKing, dragXFrom, dragYFrom, dragXTo, dragYTo)) {
+            if (dragging) { // drop the piece that is being dragged
+                
+                dragging = false;
+                decideBoardCoords(x, y, &dragXTo, &dragYTo);
 
-                // promote to king?
-                if (dragType == 'X' && dragYTo == numSquaresOnSide-1)
-                    dragType = 'K';
-                else if (dragType == 'Y' && dragYTo == 0) {
-                    dragType = 'L';
+                playerNum = determinePlayer(dragType);
+                isKing = dragType == 'K' || dragType == 'L';
+                // determine if this is a valid location to drop the piece
+                if (isValidMove(playerNum, isKing, dragXFrom, dragYFrom, dragXTo, dragYTo)) {
+
+                    // promote to king?
+                    if (dragType == 'X' && dragYTo == numSquaresOnSide-1)
+                        dragType = 'K';
+                    else if (dragType == 'Y' && dragYTo == 0) {
+                        dragType = 'L';
+                    }
+
+                    board[dragXTo][dragYTo] = dragType;
+
+                } else {
+                    printf("INVALID!\n");
+                    board[dragXFrom][dragYFrom] = dragType;
                 }
-
-                board[dragXTo][dragYTo] = dragType;
-
-            } else {
-                printf("INVALID!\n");
-                board[dragXFrom][dragYFrom] = dragType;
             }
-            
         }
 
     } else {
