@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-
+#include <math.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 
@@ -12,22 +12,36 @@
 #endif
 
 
-const char* HELP_STR =
-"ARGUMENTS\n\n"
-"    [--nVal (-n)]           Number of squares on each side of the board.\n"
-"                            Default is 8.\n";
-
 const int WIDTH = 640;
 const int HEIGHT = 640;
 
+const char* HELP_STR =
+"ARGUMENTS\n\n"
+"    [--nVal   (-n)]           Number of squares on each side of the board.\n"
+"                            Default is 8.\n"
+"    [--server (-s)]         Start in server mode.\n"
+"    [--client (-c)]         Start in client mode\n"
+"    [--port   (-p)]         Run server on specified port number.\n"
+;
+
+
+enum modeType {
+    SERVER,
+    CLIENT
+};
+
+enum modeType mode;
 int numSquaresOnSide = -1;
+int port = 1024;
+char **board;
 
 bool procArgs(int argc, char* argv[]);
 void init();
+char** initMatrix(int n, int m);
 void drawScreen();
 void drawBoard();
 void drawPieces();
-
+void drawCircle(int x, int y, int radius);
 
 int main(int argc, char* argv[]) {
 
@@ -72,8 +86,13 @@ bool procArgs(int argc, char* argv[]) {
         } else if (!strcmp(argLabel, "--help")) {
             printf("%s", HELP_STR);
             return false;
+        } else if (!strcmp(argLabel, "--server") || !strcmp(argLabel, "-s")) {
+            mode = SERVER;
+        } else if (!strcmp(argLabel, "--client") || !strcmp(argLabel, "-c")) {
+            mode = CLIENT;
+        } else if (!strcmp(argLabel, "--port") || !strcmp(argLabel, "-p")) {
+            port = atoi(argVal);
         }
-
 
         argNum++;
     }
@@ -83,6 +102,14 @@ bool procArgs(int argc, char* argv[]) {
         printf("Defaulting to n=8\n");
         numSquaresOnSide = 8;
     }
+    if (mode == SERVER) {
+        printf("Starting in SERVER mode.\n");
+        printf("Running on port %d\n", port);
+    } else if (mode == CLIENT) {
+        printf("Starting in CLIENT mode.\n");
+        printf("Connecting to port %d\n", port);
+    }
+
 
     return true;
 }
@@ -112,8 +139,74 @@ void init() {
 
     //defines a 2D orthographic projection matrix
     gluOrtho2D(0.0, WIDTH, 0.0, HEIGHT);
+
+
+    // antialiasing
+    glEnable(GL_POLYGON_SMOOTH_HINT);
+    glEnable(GL_LINE_SMOOTH_HINT);
+
+    // allocate memory for n pointers to char arrays
+    board = initMatrix(numSquaresOnSide, numSquaresOnSide);
+
+    // fill in the board array
+    //      X       represents player 1
+    //      Y       represents player 2
+    //      K       represents player 1 kinged
+    //      L       represents player 2 kinged
+
+    int x, y;
+    bool evenCol, sqrOn;
+
+
+    for (x = 0; x < numSquaresOnSide; x++) {        
+        evenCol = !evenCol;
+        sqrOn = evenCol;
+
+        for (y = 0; y<numSquaresOnSide; y++) {
+            sqrOn = !sqrOn;
+
+            if (sqrOn) {
+                if (numSquaresOnSide % 2 == 1) {
+                    if (y < numSquaresOnSide/2) {
+                        board[x][y] = 'X';
+                    } else if (y > numSquaresOnSide/2){
+                        board[x][y] = 'Y';
+                    }
+                } else {
+                    if (y < numSquaresOnSide/2 - 1) {
+                        board[x][y] = 'X';
+                    } else if (y > numSquaresOnSide/2){
+                        board[x][y] = 'Y';
+                    }
+                }
+            }
+        }
+    }
+
+
+
+
 }
 
+/* Creates a 2D array of char and returns a pointer. */
+char** initMatrix(int n, int m) {
+    int i;
+
+    // reserve space for n pointers to char arrays
+    char** a = (char**) malloc(sizeof(char*)*n);
+
+    // guarantee contiguous allocation
+    a[0] = malloc(n*m * sizeof(char));
+
+    // Make double subscripts work with some hardcoded
+    // pointer arithmetic. Note that we don't have to
+    // redo these pointers when receiving a new matrix
+    // because the matrices are allocated contiguously!
+    for (i=0; i<n; i++)
+        a[i] = (char*)(a[0] + i*m);
+ 
+    return a;
+}
 
 
 /*
@@ -138,6 +231,7 @@ void drawScreen() {
 void drawBoard() {
     int x, y;
     int x1, y1, x2, y2;
+    int cx, cy, r;
     float xPos, yPos;
     float sqrWidth = 1.*WIDTH / numSquaresOnSide;
     float sqrHeight = 1.*HEIGHT / numSquaresOnSide;
@@ -182,6 +276,44 @@ void drawBoard() {
                 glVertex2f(x2, y2);
                 glVertex2f(x1, y2);
                 glEnd();
+
+                cx = (x1 + x2) / 2;
+                cy = (y1 + y2) / 2;
+                r = (int)(sqrWidth * 0.8);
+
+                switch (board[x][y]) {
+                    // player 1
+                    case 'X':
+                    case 'K':
+                        glColor3f(1.0f, 0.0f, 0.0f);
+                        break;
+
+                    // player 2
+                    case 'Y':
+                    case 'L':
+                        glColor3f(0.0f, 1.0f, 0.0f);
+                        break;
+                }
+                
+                drawCircle((x1+x2)/2, (y1+y2)/2, (x2-x1)/2);
+
+
+                switch (board[x][y]) {
+                    case 'K':
+                        glColor3f(0.8f, 0.2f, 0.3f);
+                        break;
+                    case 'L':                    
+                        glColor3f(0.2f, 0.8f, 0.3f);
+                        break;
+                }
+
+                if (board[x][y] == 'K' || board[x][y] == 'L')
+                    drawCircle((x1+x2)/2, (y1+y2)/2, (x2-x1)/3);
+
+
+
+                glColor3f(0.0f, 0.0f, 0.0f);
+
             }
         }
     }
@@ -194,3 +326,17 @@ void drawPieces() {
 
 
 }
+
+
+void drawCircle(int x, int y, int radius) {
+    int theta;
+    
+    glBegin(GL_TRIANGLE_FAN);
+    for (theta=0; theta<1000; theta+=1) {
+        glVertex2f(x + sin(theta) * radius, y + cos(theta) * radius);
+    }
+    glEnd();
+
+}
+
+
