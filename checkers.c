@@ -365,7 +365,7 @@ void drawPiece(char pieceType, int screenX, int screenY) {
             break;
     }
     
-    drawReesesCup(screenX, screenY, diam/2);
+    drawReesesCup(screenX, screenY, diam/2.1);
 
     switch (pieceType) {
         case 'K':
@@ -386,23 +386,29 @@ void drawPiece(char pieceType, int screenX, int screenY) {
     Draws a piece at (x, y) with the specified radius.
 */
 void drawReesesCup(int x, int y, int radius) {
-    float theta;
     bool in = false;
+    float numPts = 2*PI*10;
+    float theta;
     float r1, r2;
     r1 = radius;
-    r2 = 0.9*radius;
+    r2 = 0.8 * radius;
 
-    int numPts = 80;
+    //glBegin(GL_POINTS);
+    glBegin(GL_POLYGON);
+    //glBegin(GL_LINE_LOOP);
+    //glBegin(GL_TRIANGLES);
+    for (theta=0; theta<=2.*PI; theta+=2.*PI/numPts) {
 
-    glBegin(GL_TRIANGLE_FAN);
-    for (theta=0; theta<=2.1*PI; theta+=2.*PI/numPts) {
-        in = !in;
-
+        // decide which radius to use
+        /*in = !in;
         if (in) radius = r2;
         else    radius = r1;
-
-        glVertex2f(x + sin(theta) * radius, y + cos(theta) * radius);
+        */
+        glVertex2f(x + sin(theta)*radius, y + cos(theta)*radius);
     }
+
+    glVertex2f(x, y+r1);
+
     glEnd();
 
 }
