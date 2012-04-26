@@ -3,8 +3,12 @@
 #include <stdbool.h>
 #include <math.h>
 #include <string.h>
+
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h> 
+
 
 #ifdef __APPLE__
     #include <GLUT/glut.h>
@@ -228,6 +232,48 @@ void init() {
             }
         }
     }
+
+    struct hostent *server;
+    struct sockaddr_in serv_addr;
+    int sockfd, n;
+    char buffer[256];
+
+
+    // set up sockets
+    if (mode == CLIENT) {
+
+        sockfd = socket(AF_INET, SOCK_STREAM, 0);
+        if (sockfd < 0) 
+            printf("ERROR opening socket\n");
+
+        server = gethostbyname("127.0.0.1");
+        
+        if (server == NULL) {
+            fprintf(stderr,"ERROR, no such host\n");
+            exit(0);
+        }
+
+        bzero((char *) &serv_addr, sizeof(serv_addr));
+        serv_addr.sin_family = AF_INET;
+        bcopy((char *)server->h_addr, 
+             (char *)&serv_addr.sin_addr.s_addr,
+             server->h_length);
+        serv_addr.sin_port = htons(port);
+        if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) 
+            printf("ERROR connecting\n");
+
+
+        // test with a write
+        sprintf(&buffer[0], "Hello!");
+        n = write(sockfd,buffer,strlen(buffer));
+        if (n < 0) 
+            printf("ERROR writing to socket\n");
+
+
+
+    } else if (mode == SERVER) {
+    }
+
 }
 
 /* Creates a 2D array of char and returns a pointer. */
