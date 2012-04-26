@@ -57,6 +57,7 @@ typedef struct {
 
 // command line options
 enum modeType mode = SERVER;
+enum player = NO_PLAYER;
 int numSquaresOnSide = -1;
 int port = 1024;
 
