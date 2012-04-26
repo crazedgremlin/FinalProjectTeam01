@@ -79,6 +79,7 @@ char** initMatrix(int n, int m);
 void drawScreen();
 void drawBoard();
 void drawPiece(char pieceType, int x, int y);
+void drawKing(int x, int y);
 void drawReesesCup(int x, int y, int radius);
 bool isValidMove(enum player p, bool isKing, int x1, int y1, int x2, int y2);
 enum player determinePlayer(char piece);
