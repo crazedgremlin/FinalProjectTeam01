@@ -14,7 +14,7 @@
 
 const int WIDTH = 640;
 const int HEIGHT = 640;
-
+const int PI = 3.1415926f;
 const char* HELP_STR =
 "ARGUMENTS\n\n"
 "    [--nVal   (-n)]           Number of squares on each side of the board.\n"
@@ -22,8 +22,17 @@ const char* HELP_STR =
 "    [--server (-s)]         Start in server mode.\n"
 "    [--client (-c)]         Start in client mode\n"
 "    [--port   (-p)]         Run server on specified port number.\n"
+"\n"
+"KEYBOARD COMMANDS\n\n"
+"    L                       draws labels over the checkers pieces\n"
+"    P                       prints the board to STDOUT\n"
 ;
 
+enum player {
+    PLAYER_ONE,
+    PLAYER_TWO,
+    NO_PLAYER
+};
 
 enum modeType {
     SERVER,
@@ -35,13 +44,29 @@ int numSquaresOnSide = -1;
 int port = 1024;
 char **board;
 
+bool dragging = false;
+char dragType = ' ';
+int dragXFrom, dragYFrom;
+int mouseX, mouseY;
+
+bool drawLabels = false;
+
 bool procArgs(int argc, char* argv[]);
 void init();
 char** initMatrix(int n, int m);
 void drawScreen();
 void drawBoard();
-void drawPieces();
-void drawCircle(int x, int y, int radius);
+void drawPiece(char pieceType, int x, int y);
+void drawReesesCup(int x, int y, int radius);
+bool isValidMove(enum player p, bool isKing, int x1, int y1, int x2, int y2);
+enum player determinePlayer(char piece);
+void decideBoardCoords(int mouseX, int mouseY, int *x, int *y);
+void motionFunc(int x, int y);
+void mouseFunc(int button, int state, int x, int y);
+void printBoard();
+void keyPressed(unsigned char key, int x, int y);
+
+
 
 int main(int argc, char* argv[]) {
 
@@ -123,7 +148,7 @@ void init() {
     glDisable(GL_DEPTH_TEST);
 
     // choose background color
-    glClearColor(1.0, 1.0, 1.0, 0.0);
+    glClearColor(0.6, 0.1, 0.2, 0.0);
 
     // set drawing color
     glColor3f(0.0f, 0.0f, 0.0f);
@@ -140,19 +165,27 @@ void init() {
     //defines a 2D orthographic projection matrix
     gluOrtho2D(0.0, WIDTH, 0.0, HEIGHT);
 
-
     // antialiasing
     glEnable(GL_POLYGON_SMOOTH_HINT);
     glEnable(GL_LINE_SMOOTH_HINT);
 
+    // set mouse motion func
+    glutMouseFunc(mouseFunc);
+    glutMotionFunc(motionFunc);
+
+    // set keyboard func
+    glutKeyboardFunc(keyPressed);
+
     // allocate memory for n pointers to char arrays
     board = initMatrix(numSquaresOnSide, numSquaresOnSide);
 
-    // fill in the board array
+
+    // fill in the board character array
     //      X       represents player 1
     //      Y       represents player 2
     //      K       represents player 1 kinged
     //      L       represents player 2 kinged
+    //      _       means this square is off
 
     int x, y;
     bool evenCol, sqrOn;
@@ -164,6 +197,8 @@ void init() {
 
         for (y = 0; y<numSquaresOnSide; y++) {
             sqrOn = !sqrOn;
+
+            board[x][y] = ' ';
 
             if (sqrOn) {
                 if (numSquaresOnSide % 2 == 1) {
@@ -182,10 +217,6 @@ void init() {
             }
         }
     }
-
-
-
-
 }
 
 /* Creates a 2D array of char and returns a pointer. */
@@ -218,7 +249,6 @@ void drawScreen() {
 
     // draw the current state of the game
     drawBoard();
-    drawPieces();
 
     // flushes all unfinished drawing commands
     glFlush();
@@ -264,79 +294,263 @@ void drawBoard() {
             sqrOn = !sqrOn;
 
             if (sqrOn) {
-
                 x1 = (int)(xPos + 0.5);
                 x2 = (int)(xPos + sqrWidth + 0.5);
                 y1 = (int)(yPos + 0.5);
                 y2 = (int)(yPos + sqrHeight + 0.5);
 
+
+                glColor3f(.0f, .0f, .0f);
+
                 glBegin(GL_QUADS);
-                glVertex2f(x1, y1);
-                glVertex2f(x2, y1);
-                glVertex2f(x2, y2);
-                glVertex2f(x1, y2);
+                    glVertex2f(x1, y1);
+                    glVertex2f(x2, y1);
+                    glVertex2f(x2, y2);
+                    glVertex2f(x1, y2);
                 glEnd();
 
                 cx = (x1 + x2) / 2;
                 cy = (y1 + y2) / 2;
-                r = (int)(sqrWidth * 0.8);
+                drawPiece(board[x][y], cx, cy);
 
-                switch (board[x][y]) {
-                    // player 1
-                    case 'X':
-                    case 'K':
-                        glColor3f(1.0f, 0.0f, 0.0f);
-                        break;
 
-                    // player 2
-                    case 'Y':
-                    case 'L':
-                        glColor3f(0.0f, 1.0f, 0.0f);
-                        break;
+                if (drawLabels) {
+                    // draw the board character at this position
+                    glColor3f(1.0f, 1.0f, 1.0f);
+                    glRasterPos2i(cx-9/2, cy - 15/2);
+                    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, board[x][y]);
+                    glColor3f(0.0f, 0.0f, 0.0f);
                 }
-                
-                drawCircle((x1+x2)/2, (y1+y2)/2, (x2-x1)/2);
-
-
-                switch (board[x][y]) {
-                    case 'K':
-                        glColor3f(0.8f, 0.2f, 0.3f);
-                        break;
-                    case 'L':                    
-                        glColor3f(0.2f, 0.8f, 0.3f);
-                        break;
-                }
-
-                if (board[x][y] == 'K' || board[x][y] == 'L')
-                    drawCircle((x1+x2)/2, (y1+y2)/2, (x2-x1)/3);
-
-
-
-                glColor3f(0.0f, 0.0f, 0.0f);
 
             }
+
         }
+    }
+
+    // optionally draw the piece that is being dragged
+    if (dragging) {
+        drawPiece(dragType, mouseX, mouseY);
     }
 }
 
 /*
     Draw the positions of the players' pieces
 */
-void drawPieces() {
+void drawPiece(char pieceType, int screenX, int screenY) {
 
+    int diam = WIDTH/numSquaresOnSide;
 
+    switch (pieceType) {
+        // player 1
+        case 'X':
+        case 'K':
+            glColor3f(.87f, 0.64f, 0.32f);
+            break;
+
+        // player 2
+        case 'Y':
+        case 'L':
+            glColor3f(0.8f, 0.3f, 0.2f);
+            break;
+    }
+    
+    drawReesesCup(screenX, screenY, diam/2);
+
+    switch (pieceType) {
+        case 'K':
+            glColor3f(0.77f, 0.54, 0.22f);
+            break;
+        case 'L':                    
+            glColor3f(0.7f, 0.2f, 0.1f);
+            break;
+    }
+
+    if (pieceType == 'K' || pieceType == 'L')
+        drawReesesCup(screenX, screenY, diam/3);
+
+    glColor3f(0.0f, 0.0f, 0.0f);
 }
 
+/*
+    Draws a piece at (x, y) with the specified radius.
+*/
+void drawReesesCup(int x, int y, int radius) {
+    float theta;
+    bool in = false;
+    float r1, r2;
+    r1 = radius;
+    r2 = 0.95*radius;
 
-void drawCircle(int x, int y, int radius) {
-    int theta;
-    
     glBegin(GL_TRIANGLE_FAN);
-    for (theta=0; theta<1000; theta+=1) {
+    for (theta=0; theta<2*PI; theta+=PI*0.02) {
+        in = !in;
+
+        if (in) radius = r2;
+        else    radius = r1;
+
         glVertex2f(x + sin(theta) * radius, y + cos(theta) * radius);
     }
     glEnd();
 
+}
+
+/*
+    Figure out the coordinates of the square on the board that the mouse is
+    inside.
+*/
+void decideBoardCoords(int mouseX, int mouseY, int *x, int *y) {
+    *x = 1. * numSquaresOnSide * mouseX / WIDTH;
+    *y = numSquaresOnSide - 1. * numSquaresOnSide * mouseY / HEIGHT;
+}
+
+
+/*
+    Called when the mouse is moved while a button is down.
+*/
+void motionFunc(int x, int y) {
+    mouseX = x;
+    mouseY = HEIGHT - y;
+    glutPostRedisplay();
+}
+
+
+enum player determinePlayer(char piece) {
+    if (piece == 'X' || piece == 'K')
+        return PLAYER_ONE;
+    else if (piece == 'Y' || piece == 'L')
+        return PLAYER_TWO;
+    else
+        return NO_PLAYER;
+}
+
+/*
+    Determines if the move is valid.  If a piece has been jumped, overwrite
+    that part of the board with a space.
+     
+    FIXME -- really really bad code
+*/
+bool isValidMove(enum player p, bool isKing, int x1, int y1, int x2, int y2) {
+    int goal = 0;
+    if (p == PLAYER_ONE)
+        goal = 1;
+    else if (p == PLAYER_TWO)
+        goal = -1;
+
+    bool goodSingleJump = (board[x2][y2] == ' ' && abs(x2-x1) == 1 && 
+                          ((isKing && abs(y2-y1) == 1) || (!isKing && y2-y1 == goal)));
+
+    // between jump coordinates -- the space that is passed during the jump
+    int bx, by;
+    char jumped;
+
+    if (goodSingleJump)
+        return true;
+    else {
+        goal *= 2;
+        if (abs(x2-x1) == 2 && isKing && abs(y2-y1) == 2 || !isKing && y2-y1 == goal) {
+            bx = (x2+x1)/2;
+            by = (y2+y1)/2;
+            jumped = board[bx][by];
+            if ((p == PLAYER_ONE && (jumped == 'Y' || jumped == 'L')) ||
+                (p == PLAYER_TWO && (jumped == 'X' || jumped == 'K'))) {
+                board[bx][by] = ' ';
+                return true;
+            }
+        }
+    }
+    return false;
+
+}
+
+/*
+    Called when the user presses and releases mouse buttons.
+*/
+void mouseFunc(int button, int state, int x, int y) {
+
+    int dragXTo, dragYTo;
+    enum player playerNum;
+    bool isKing;
+
+    mouseX = x;
+    mouseY = HEIGHT - y;
+
+    if (button == GLUT_LEFT_BUTTON) {
+
+        if (state == GLUT_DOWN) {
+            if (!dragging) {
+                dragging = true;
+                decideBoardCoords(x, y, &dragXFrom, &dragYFrom);
+                dragType = board[dragXFrom][dragYFrom];
+
+                // if this square is off
+                if (dragType == ' ') {
+                    dragging = false;
+                    return;
+                }
+
+                board[dragXFrom][dragYFrom] = ' ';
+
+                printf("dragging piece @ (%d, %d)\n", dragXFrom, dragYFrom);
+            }
+        } else {
+            dragging = false;
+        
+            decideBoardCoords(x, y, &dragXTo, &dragYTo);
+
+            playerNum = determinePlayer(dragType);
+            isKing = dragType == 'K' || dragType == 'L';
+            // determine if this is a valid location to drop the piece
+            if (isValidMove(playerNum, isKing, dragXFrom, dragYFrom, dragXTo, dragYTo)) {
+
+                // promote to king?
+                if (dragType == 'X' && dragYTo == numSquaresOnSide-1)
+                    dragType = 'K';
+                else if (dragType == 'Y' && dragYTo == 0) {
+                    dragType = 'L';
+                }
+
+                board[dragXTo][dragYTo] = dragType;
+
+            } else {
+                printf("INVALID!\n");
+                board[dragXFrom][dragYFrom] = dragType;
+            }
+            
+        }
+
+    } else {
+        
+    }
+
+    glutPostRedisplay();
+
+}
+
+void printBoard() {
+    int x, y;
+    for (y=0; y<numSquaresOnSide; y++) {
+        for (x=0; x<numSquaresOnSide; x++) {
+            printf("%c ", board[x][y]);
+        }
+        printf("\n");
+    }
+
+    int i;
+    for (i=0; i<numSquaresOnSide*2; i++) 
+        printf("-");
+    printf("\n");
+}
+void keyPressed(unsigned char key, int x, int y) {
+    switch (key) {
+        case 'l':
+        case 'L':
+            drawLabels = !drawLabels;
+            break;
+        case 'p':
+        case 'P':
+            printBoard();
+    }
+    glutPostRedisplay();
 }
 
 
