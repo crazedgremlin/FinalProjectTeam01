@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 
@@ -65,6 +66,8 @@ void motionFunc(int x, int y);
 void mouseFunc(int button, int state, int x, int y);
 void printBoard();
 void keyPressed(unsigned char key, int x, int y);
+void drawString(char* str, int x, int y);
+
 
 
 
@@ -379,10 +382,12 @@ void drawReesesCup(int x, int y, int radius) {
     bool in = false;
     float r1, r2;
     r1 = radius;
-    r2 = 0.95*radius;
+    r2 = 0.9*radius;
+
+    int numPts = 80;
 
     glBegin(GL_TRIANGLE_FAN);
-    for (theta=0; theta<2*PI; theta+=PI*0.02) {
+    for (theta=0; theta<=2.1*PI; theta+=2.*PI/numPts) {
         in = !in;
 
         if (in) radius = r2;
@@ -553,4 +558,21 @@ void keyPressed(unsigned char key, int x, int y) {
     glutPostRedisplay();
 }
 
+void drawString(char* str, int x, int y) {
+    int i;
+    int len;
+    
+    // set color
+    glColor3f(0.0, 1.0, 0.0);
+    
+    // set position
+    glRasterPos2i(x, y);
+
+    // draw each character
+    len = strlen(str);
+    for (i=0; i<len; i++) {
+        glutBitmapCharacter(GLUT_BITMAP_9_BY_15, str[i]);
+    }
+
+}
 
