@@ -460,7 +460,7 @@ void drawPiece(char pieceType, int screenX, int screenY) {
     }
 
     if (pieceType == 'K' || pieceType == 'L')
-        drawReesesCup(screenX, screenY, diam/3);
+        drawKing(screenX, screenY);
 
     glColor3f(0.0f, 0.0f, 0.0f);
 }
@@ -494,6 +494,29 @@ void drawReesesCup(int x, int y, int radius) {
 
     glEnd();
 
+}
+
+/*
+ Draws a piece at (x, y) with the specified radius.
+ */
+void drawKing(int x, int y) {
+	
+	x = x - 10;
+	y = y -10;
+    
+    glBegin(GL_POLYGON);
+    
+    glVertex2f(x, y);
+	glVertex2f(x -10, y+20);
+	glVertex2f(x, y + 15);
+	glVertex2f(x + 10, y +30);
+	glVertex2f(x + 20, y + 15);
+	glVertex2f(x +30, y +20);
+	glVertex2f(x +20, y);
+
+	
+    glEnd();
+	
 }
 
 /*
