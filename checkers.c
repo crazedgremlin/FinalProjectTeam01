@@ -47,7 +47,7 @@ enum modeType {
 };
 
 // command line options
-enum modeType mode;
+enum modeType mode = SERVER;
 int numSquaresOnSide = -1;
 int port = 1024;
 
@@ -86,6 +86,15 @@ void drawString(char* str, int x, int y);
 int main(int argc, char* argv[]) {
 
     bool goodArgs = procArgs(argc, argv);
+
+    char* title;
+
+    if (mode == CLIENT) {
+        title = "CLIENT";
+    } else if (mode == SERVER) {
+        title = "SERVER";
+    }
+
     if (!goodArgs)
         return 1;
 
@@ -93,12 +102,14 @@ int main(int argc, char* argv[]) {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGBA);
     glutInitWindowSize(WIDTH, HEIGHT);
-    glutCreateWindow("Test!");
+    glutCreateWindow(title);
+
+    // set up everything
+    init();
 
     // register display callback
     glutDisplayFunc(drawScreen);
         
-    init();
     glutMainLoop();
 
     return 0;
@@ -234,10 +245,11 @@ void init() {
     }
 
     struct hostent *server;
-    struct sockaddr_in serv_addr;
-    int sockfd, n;
-    char buffer[256];
+    struct sockaddr_in serv_addr, cli_addr;
+    socklen_t clilen;
 
+    int sockfd, newsockfd, n;
+    char buffer[256];
 
     // set up sockets
     if (mode == CLIENT) {
@@ -246,7 +258,7 @@ void init() {
         if (sockfd < 0) 
             printf("ERROR opening socket\n");
 
-        server = gethostbyname("127.0.0.1");
+        server = gethostbyname("localhost");
         
         if (server == NULL) {
             fprintf(stderr,"ERROR, no such host\n");
@@ -269,9 +281,34 @@ void init() {
         if (n < 0) 
             printf("ERROR writing to socket\n");
 
-
-
     } else if (mode == SERVER) {
+         
+         sockfd = socket(AF_INET, SOCK_STREAM, 0);
+         if (sockfd < 0) 
+            printf("ERROR opening socket\n");
+         
+         bzero((char *) &serv_addr, sizeof(serv_addr));
+         serv_addr.sin_family = AF_INET;
+         serv_addr.sin_addr.s_addr = INADDR_ANY;
+         serv_addr.sin_port = htons(port);
+         if (bind(sockfd, (struct sockaddr *) &serv_addr,
+                  sizeof(serv_addr)) < 0) 
+                  printf("ERROR on binding\n");
+         listen(sockfd,5);
+         clilen = sizeof(cli_addr);
+         newsockfd = accept(sockfd, 
+                     (struct sockaddr *) &cli_addr, 
+                     &clilen);
+         if (newsockfd < 0) 
+              printf("ERROR on accept\n");
+
+        
+        // test with a read
+        n = read(newsockfd,buffer,255);
+        if (n < 0) 
+            printf("ERROR reading from socket\n");
+        printf("RECEIVED: '%s'\n", buffer);
+
     }
 
 }
