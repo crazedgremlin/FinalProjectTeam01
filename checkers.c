@@ -33,6 +33,8 @@ const char* HELP_STR =
 "    P                       prints the board to STDOUT\n"
 ;
 
+
+
 // different types of players
 enum player {
     PLAYER_ONE,
@@ -45,6 +47,13 @@ enum modeType {
     SERVER,
     CLIENT
 };
+
+
+typedef struct {
+    enum player whoseTurn;
+    int x1, y1, x2, y2;
+} message;
+
 
 // command line options
 enum modeType mode = SERVER;
