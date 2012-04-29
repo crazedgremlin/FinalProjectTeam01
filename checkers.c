@@ -82,7 +82,7 @@ char** initMatrix(int n, int m);
 void drawScreen();
 void drawBoard();
 void drawPiece(char pieceType, int x, int y);
-void drawKing(int x, int y);
+void drawKing(float x, float y, int scale);
 void drawReesesCup(int x, int y, int radius);
 bool isValidMove(enum player p, bool isKing, int x1, int y1, int x2, int y2);
 enum player determinePlayer(char piece);
@@ -502,7 +502,7 @@ void drawPiece(char pieceType, int screenX, int screenY) {
     }
 
     if (pieceType == 'K' || pieceType == 'L')
-        drawKing(screenX, screenY);
+        drawKing(screenX, screenY, diam/2.1);
 
     glColor3f(0.0f, 0.0f, 0.0f);
 }
@@ -539,24 +539,21 @@ void drawReesesCup(int x, int y, int radius) {
 }
 
 /*
- Draws a piece at (x, y) with the specified radius.
+ Draws a king at (x, y) with the specified radius.
  */
-void drawKing(int x, int y) {
-	
-	x = x - 10;
-	y = y -10;
-    
-    glBegin(GL_POLYGON);
-    
-    glVertex2f(x, y);
-	glVertex2f(x -10, y+20);
-	glVertex2f(x, y + 15);
-	glVertex2f(x + 10, y +30);
-	glVertex2f(x + 20, y + 15);
-	glVertex2f(x +30, y +20);
-	glVertex2f(x +20, y);
+void drawKing(float x, float y, int scale) {
 
-	
+    x = x - 1.0/3.0*scale;
+    y = y - 1.0/3.0*scale;
+
+    glBegin(GL_POLYGON);
+    glVertex2f(x,y);
+    glVertex2f(x - 1.0/3.0*scale, y + 2.0/3.0*scale);
+    glVertex2f(x, y + 0.5*scale);
+    glVertex2f(x + 1.0/3.0*scale, y+1.0*scale);
+    glVertex2f(x + 2.0/3.0*scale, y+0.5*scale);
+    glVertex2f(x + 1.0*scale, y + 2.0/3.0*scale);
+    glVertex2f(x + 2.0/3.0*scale, y);
     glEnd();
 	
 }
