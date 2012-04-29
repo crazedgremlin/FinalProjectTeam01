@@ -82,6 +82,8 @@ int mouseX, mouseY;
 char **board;
 char titleStr[255];
 
+// communication
+int serverSocket, playerOneSock, playerTwoSock,
 
 bool procArgs(int argc, char* argv[]);
 void init();
@@ -110,6 +112,19 @@ bool isGameOver() {
 int whoWon() {
     return -1;
 }
+
+void sendMoveToServer( messageToServer* mess) {
+
+}
+
+messageFromServer* getMessageFromServer() {
+    messageFromServer* message = malloc(sizeof(messageFromServer));
+
+    // get message
+
+    return message;
+}
+
 
 int main(int argc, char* argv[]) {
 
@@ -731,14 +746,14 @@ void initSockets() {
     struct sockaddr_in serv_addr, cli_addr;
     socklen_t clilen;
 
-    int sockfd, serverSocket, playerOneSock, playerTwoSock, n;
+    int sockfd, n;
     char buffer[256];
 
     // set up sockets
     if (mode == CLIENT) {
 
-        sockfd = socket(AF_INET, SOCK_STREAM, 0);
-        if (sockfd < 0) 
+        serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+        if (serverSocket < 0) 
             printf("ERROR opening socket\n");
 
         server = gethostbyname("localhost");
@@ -754,14 +769,14 @@ void initSockets() {
              (char *)&serv_addr.sin_addr.s_addr,
              server->h_length);
         serv_addr.sin_port = htons(port);
-        if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) {
+        if (connect(serverSocket, (struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) {
             printf("ERROR connecting\n");
             exit(0);
         }
 
 
         // read in title string
-        n = read(sockfd,&titleStr[0],255);
+        n = read(serverSocket,&titleStr[0],255);
         if (n < 0) 
             printf("ERROR receiving title string\n");
 
