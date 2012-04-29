@@ -102,6 +102,15 @@ void drawString(char* str, int x, int y);
 int serverAddPlayer(char* playerTitle, int serverSocket, struct sockaddr_in clientAddr);
 void initSockets();
 
+
+bool isGameOver() {
+    return false;
+}
+
+int whoWon() {
+    return -1;
+}
+
 int main(int argc, char* argv[]) {
 
     bool goodArgs = procArgs(argc, argv);
@@ -142,6 +151,7 @@ int main(int argc, char* argv[]) {
 
         bool whoseTurn;
         bool gameOver = false;
+        int winner;
         while (!gameOver) {
             whoseTurn = !whoseTurn;
             
@@ -150,8 +160,14 @@ int main(int argc, char* argv[]) {
             // listen for reply
             // send that answer to the other player
 
-        }
 
+            if (isGameOver()) {
+                winner = whoWon();
+
+                // send youWon message to winner
+                // send youLose message to loser
+            }
+        }
     }
 
 
