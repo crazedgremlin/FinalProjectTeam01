@@ -75,7 +75,6 @@ char **board;
 char titleStr[255];
 
 
-
 bool procArgs(int argc, char* argv[]);
 void init();
 char** initMatrix(int n, int m);
@@ -92,101 +91,8 @@ void mouseFunc(int button, int state, int x, int y);
 void printBoard();
 void keyPressed(unsigned char key, int x, int y);
 void drawString(char* str, int x, int y);
-
-
-/*
-    Adds a player by listening for a connection from the client.
-    
-    Returns sockfd for the client
-*/
-int serverAddPlayer(char* playerTitle, int serverSocket, struct sockaddr_in clientAddr) {
-    int clientSockFd;
-    int clilen;
-    int n;
-
-    // listen for incoming connection from client 
-    listen(serverSocket,1);
-    clilen = sizeof(clientAddr);
-    clientSockFd = accept(serverSocket, 
-             (struct sockaddr *) &clientAddr, 
-             &clilen);
-    if (clientSockFd < 0) 
-      printf("ERROR on accept\n");
-
-
-    // send the window title to the client
-    n = write(clientSockFd,playerTitle,strlen(playerTitle));
-    if (n < 0) 
-        printf("ERROR sending player title string\n");
-
-    return clientSockFd;
-
-}
-
-void initSockets() {
-    struct hostent *server;
-    struct sockaddr_in serv_addr, cli_addr;
-    socklen_t clilen;
-
-    int sockfd, serverSocket, playerOneSock, playerTwoSock, n;
-    char buffer[256];
-
-    // set up sockets
-    if (mode == CLIENT) {
-
-        sockfd = socket(AF_INET, SOCK_STREAM, 0);
-        if (sockfd < 0) 
-            printf("ERROR opening socket\n");
-
-        server = gethostbyname("localhost");
-        
-        if (server == NULL) {
-            fprintf(stderr,"ERROR, no such host\n");
-            exit(0);
-        }
-
-        bzero((char *) &serv_addr, sizeof(serv_addr));
-        serv_addr.sin_family = AF_INET;
-        bcopy((char *)server->h_addr, 
-             (char *)&serv_addr.sin_addr.s_addr,
-             server->h_length);
-        serv_addr.sin_port = htons(port);
-        if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) {
-            printf("ERROR connecting\n");
-            exit(0);
-        }
-
-
-        // read in title string
-        n = read(sockfd,&titleStr[0],255);
-        if (n < 0) 
-            printf("ERROR receiving title string\n");
-
-        printf("RECEIVED: '%s'\n", titleStr);
-
-
-    } else if (mode == SERVER) {
-           
-        // create server socket
-        sockfd = socket(AF_INET, SOCK_STREAM, 0);
-        if (sockfd < 0) 
-        printf("ERROR opening socket\n");
-
-        bzero((char *) &serv_addr, sizeof(serv_addr));
-        serv_addr.sin_family = AF_INET;
-        serv_addr.sin_addr.s_addr = INADDR_ANY;
-        serv_addr.sin_port = htons(port);
-        if (bind(sockfd, (struct sockaddr *) &serv_addr,
-              sizeof(serv_addr)) < 0) 
-              printf("ERROR on binding\n");
-
-
-         // --------- listen for connection from client 1
-        playerOneSock = serverAddPlayer("Player One", sockfd, cli_addr);
-        playerTwoSock = serverAddPlayer("Player Two", sockfd, cli_addr);
-
-    }
-}
+int serverAddPlayer(char* playerTitle, int serverSocket, struct sockaddr_in clientAddr);
+void initSockets();
 
 int main(int argc, char* argv[]) {
 
@@ -740,4 +646,102 @@ void drawString(char* str, int x, int y) {
     }
 
 }
+
+
+
+
+/*
+    Adds a player by listening for a connection from the client.
+    
+    Returns sockfd for the client
+*/
+int serverAddPlayer(char* playerTitle, int serverSocket, struct sockaddr_in clientAddr) {
+    int clientSockFd;
+    int clilen;
+    int n;
+
+    // listen for incoming connection from client 
+    listen(serverSocket,1);
+    clilen = sizeof(clientAddr);
+    clientSockFd = accept(serverSocket, 
+             (struct sockaddr *) &clientAddr, 
+             &clilen);
+    if (clientSockFd < 0) 
+      printf("ERROR on accept\n");
+
+
+    // send the window title to the client
+    n = write(clientSockFd,playerTitle,strlen(playerTitle));
+    if (n < 0) 
+        printf("ERROR sending player title string\n");
+
+    return clientSockFd;
+
+}
+
+void initSockets() {
+    struct hostent *server;
+    struct sockaddr_in serv_addr, cli_addr;
+    socklen_t clilen;
+
+    int sockfd, serverSocket, playerOneSock, playerTwoSock, n;
+    char buffer[256];
+
+    // set up sockets
+    if (mode == CLIENT) {
+
+        sockfd = socket(AF_INET, SOCK_STREAM, 0);
+        if (sockfd < 0) 
+            printf("ERROR opening socket\n");
+
+        server = gethostbyname("localhost");
+        
+        if (server == NULL) {
+            fprintf(stderr,"ERROR, no such host\n");
+            exit(0);
+        }
+
+        bzero((char *) &serv_addr, sizeof(serv_addr));
+        serv_addr.sin_family = AF_INET;
+        bcopy((char *)server->h_addr, 
+             (char *)&serv_addr.sin_addr.s_addr,
+             server->h_length);
+        serv_addr.sin_port = htons(port);
+        if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) {
+            printf("ERROR connecting\n");
+            exit(0);
+        }
+
+
+        // read in title string
+        n = read(sockfd,&titleStr[0],255);
+        if (n < 0) 
+            printf("ERROR receiving title string\n");
+
+        printf("RECEIVED: '%s'\n", titleStr);
+
+
+    } else if (mode == SERVER) {
+           
+        // create server socket
+        sockfd = socket(AF_INET, SOCK_STREAM, 0);
+        if (sockfd < 0) 
+        printf("ERROR opening socket\n");
+
+        bzero((char *) &serv_addr, sizeof(serv_addr));
+        serv_addr.sin_family = AF_INET;
+        serv_addr.sin_addr.s_addr = INADDR_ANY;
+        serv_addr.sin_port = htons(port);
+        if (bind(sockfd, (struct sockaddr *) &serv_addr,
+              sizeof(serv_addr)) < 0) 
+              printf("ERROR on binding\n");
+
+
+         // --------- listen for connection from client 1
+        playerOneSock = serverAddPlayer("Player One", sockfd, cli_addr);
+        playerTwoSock = serverAddPlayer("Player Two", sockfd, cli_addr);
+
+    }
+}
+
 
