@@ -50,9 +50,17 @@ enum modeType {
 
 
 typedef struct {
-    enum player whoseTurn;
+    // move from this player sent to server
     int x1, y1, x2, y2;
-} message;
+} messageToServer;
+
+typedef struct {
+    // move from other player
+    int x1, y1, x2, y2;
+
+    // if isMyTurn is False, game is over
+    bool isMyTurn;
+} messageFromServer;
 
 
 // command line options
@@ -117,10 +125,33 @@ int main(int argc, char* argv[]) {
             
         glutMainLoop();
 
+
+
+        // Listen for message
+        // If message.isMyTurn
+        //     let player move
+        //     send move to server
+        // Else
+        //     Display game over message
+
+
     } else if (mode == SERVER) {
     
         initSockets();
         
+
+        bool whoseTurn;
+        bool gameOver = false;
+        while (!gameOver) {
+            whoseTurn = !whoseTurn;
+            
+            // make a message for player whose turn it is
+            // send message
+            // listen for reply
+            // send that answer to the other player
+
+        }
+
     }
 
 
