@@ -117,7 +117,7 @@ int whoWon() {
 void sendMoveToServer( MessageToServer* mess) {
     int n = write(serverSocket,mess,sizeof(MessageToServer));
     if (n < 0)
-        printf("ERROR sending player title string\n");
+        printf("ERROR sending move to server \n");
 }
 
 MessageFromServer* getMessageFromServer() {
@@ -663,6 +663,12 @@ void mouseFunc(int button, int state, int x, int y) {
 
                     // TODO Send move to server
                     // TODO Listen for other player's move
+                    MessageToServer* message = malloc(sizeof(MessageToServer));
+                    message->x1 = dragXFrom;
+                    message->y1 = dragYFrom;
+                    message->x2 = dragXTo;
+                    message->y2 = dragYTo;
+                    sendMoveToServer(message);
 
                 } else {
                     printf("INVALID!\n");
