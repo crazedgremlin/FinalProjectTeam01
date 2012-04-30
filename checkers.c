@@ -113,18 +113,23 @@ int whoWon() {
     return -1;
 }
 
-void sendMoveToServer( messageToServer* mess) {
 
+void sendMoveToServer( messageToServer* mess) {
+    n = write(serverSocket,mess,sizeof(messageToServer));
+    if (n < 0)
+        printf("ERROR sending player title string\n");
 }
 
 messageFromServer* getMessageFromServer() {
     messageFromServer* message = malloc(sizeof(messageFromServer));
-
+    int n;
+    n = read(serverSocket,message,sizeof(messageFromServer));
+    if (n < 0)
+            printf("ERROR receiving message\n");
     // get message
 
     return message;
 }
-
 
 int main(int argc, char* argv[]) {
 
