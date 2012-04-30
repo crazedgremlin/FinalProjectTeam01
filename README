@@ -2,9 +2,32 @@ NAME
     checkers - play an interactive game of checkers
 
 SYNOPSIS
-    checkers - [OPTIONS GO HERE]
+    checkers - [--nVal] [--server] [--client] [--port] [--help] 
+
 
 DESCRIPTION
+
+    This program is a socket-based game of checkers involving one server and
+    two clients (players).
+
+OPTIONS
+
+    --nVal, -n
+        Specifies the number of squares on each side of the game board.
+
+    --server, -s
+        Specifies to run in server mode, which is the default.
+
+    --client, -c
+        Specifies to run in client mode.
+
+    --port, -p
+        If in server mode, run on this port. If in client mode, connect on this
+        port.  Default is 9020.
+
+    --help, -h
+        Display the help page.
+
 
 EXAMPLES
 
