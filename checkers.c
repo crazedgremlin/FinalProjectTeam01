@@ -738,10 +738,15 @@ int serverAddPlayer(char* playerTitle, int serverSocket, struct sockaddr_in clie
     n = write(clientSockFd,playerTitle,strlen(playerTitle));
     if (n < 0) 
         printf("ERROR sending player title string\n");
+    else
+        printf("Sent title string '%s'\n", playerTitle);
+
 
     n = write(clientSockFd,&numSquaresOnSide, sizeof(int));
     if (n < 0)
         printf("ERROR sending board size to client");
+    else
+        printf("Sent board size to %s", playerTitle);
 
     return clientSockFd;
 
