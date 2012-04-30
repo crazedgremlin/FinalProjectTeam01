@@ -725,7 +725,8 @@ int serverAddPlayer(char* playerTitle, int serverSocket, struct sockaddr_in clie
     
 
     // listen for incoming connection from client 
-    listen(serverSocket,1);
+    int backlog = 1;
+    listen(serverSocket,backlog);
     clilen = sizeof(clientAddr);
     clientSockFd = accept(serverSocket, 
              (struct sockaddr *) &clientAddr, 
@@ -746,7 +747,7 @@ int serverAddPlayer(char* playerTitle, int serverSocket, struct sockaddr_in clie
     if (n < 0)
         printf("ERROR sending board size to client");
     else
-        printf("Sent board size to %s", playerTitle);
+        printf("Sent board size to %s\n", playerTitle);
 
     return clientSockFd;
 
@@ -791,7 +792,7 @@ void initSockets() {
         if (n < 0) 
             printf("ERROR receiving title string\n");
 
-
+        // get board size
         n = read(serverSocket,&numSquaresOnSide, sizeof(int));
         if (n < 0)
             printf("ERROR receiving board size\n");
