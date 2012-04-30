@@ -153,13 +153,6 @@ int main(int argc, char* argv[]) {
             
         glutMainLoop();
 
-        // Listen for message
-        // If message.isMyTurn
-        //     let player move
-        //     send move to server
-        // Else
-        //     Display game over message
-
 
     } else if (mode == SERVER) {
     
@@ -351,6 +344,7 @@ char** initMatrix(int n, int m) {
     Display the state of the game visually
 */
 void drawScreen() {
+
     // clear the screen
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -359,6 +353,16 @@ void drawScreen() {
 
     // flushes all unfinished drawing commands
     glFlush();
+
+    
+    // Listen for message
+    // If message.isMyTurn
+    //     let player move
+    //     send move to server
+    // Else
+    //     Display game over message
+
+
 }
 
 
@@ -651,6 +655,9 @@ void mouseFunc(int button, int state, int x, int y) {
                     }
 
                     board[dragXTo][dragYTo] = dragType;
+
+                    // TODO Send move to server
+                    // TODO Listen for other player's move
 
                 } else {
                     printf("INVALID!\n");
