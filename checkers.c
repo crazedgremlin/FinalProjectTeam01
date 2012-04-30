@@ -736,7 +736,7 @@ int serverAddPlayer(char* playerTitle, int serverSocket, struct sockaddr_in clie
 
 
     // send the window title to the client
-    n = write(clientSockFd,playerTitle,strlen(playerTitle));
+    n = write(clientSockFd,playerTitle,255);
     if (n < 0) 
         printf("ERROR sending player title string\n");
     else
@@ -791,6 +791,8 @@ void initSockets() {
         n = read(serverSocket,&titleStr[0],255);
         if (n < 0) 
             printf("ERROR receiving title string\n");
+        else
+            printf("Received title string\n");
 
         // get board size
         n = read(serverSocket,&numSquaresOnSide, sizeof(int));
