@@ -80,6 +80,7 @@ int mouseX, mouseY;
 // other globals
 char **board;
 char titleStr[255];
+enum player me;
 
 // communication
 int serverSocket, playerOneSock, playerTwoSock;
@@ -150,8 +151,21 @@ int main(int argc, char* argv[]) {
 
         // register display callback
         glutDisplayFunc(drawScreen);
-            
+        
+        //player 2 listens for player 1 move 
+        if(me == PLAYER_TWO)
+        {
+            getMessageFromServer();
+        }
+        
         glutMainLoop();
+
+        // Listen for message
+        // If message.isMyTurn
+        //     let player move
+        //     send move to server
+        // Else
+        //     Display game over message
 
 
     } else if (mode == SERVER) {
@@ -344,7 +358,6 @@ char** initMatrix(int n, int m) {
     Display the state of the game visually
 */
 void drawScreen() {
-
     // clear the screen
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -353,16 +366,6 @@ void drawScreen() {
 
     // flushes all unfinished drawing commands
     glFlush();
-
-    
-    // Listen for message
-    // If message.isMyTurn
-    //     let player move
-    //     send move to server
-    // Else
-    //     Display game over message
-
-
 }
 
 
@@ -656,9 +659,6 @@ void mouseFunc(int button, int state, int x, int y) {
 
                     board[dragXTo][dragYTo] = dragType;
 
-                    // TODO Send move to server
-                    // TODO Listen for other player's move
-
                 } else {
                     printf("INVALID!\n");
                     board[dragXFrom][dragYFrom] = dragType;
@@ -810,7 +810,13 @@ void initSockets() {
         else
             printf("Received size of board: %d\n", numSquaresOnSide);
 
-
+	if(!strcmp(titleStr,"Player One"))
+	{
+		me = PLAYER_ONE;
+	}else 
+	{
+		me = PLAYER_TWO;
+	}
         printf("RECEIVED: '%s'\n", titleStr);
 
 
@@ -833,6 +839,7 @@ void initSockets() {
          // --------- listen for connection from client 1
         playerOneSock = serverAddPlayer("Player One", sockfd, cli_addr);
         playerTwoSock = serverAddPlayer("Player Two", sockfd, cli_addr);
+        me = NO_PLAYER;
 
     }
 }
