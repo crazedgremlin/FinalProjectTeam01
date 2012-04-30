@@ -51,7 +51,7 @@ enum modeType {
 typedef struct {
     // move from this player sent to server
     int x1, y1, x2, y2;
-} messageToServer;
+} MessageToServer;
 
 typedef struct {
     // move from other player
@@ -59,7 +59,7 @@ typedef struct {
 
     // if isMyTurn is False, game is over
     bool isMyTurn;
-} messageFromServer;
+} MessageFromServer;
 
 
 // command line options
@@ -112,16 +112,16 @@ int whoWon() {
 }
 
 
-void sendMoveToServer( messageToServer* mess) {
-    int n = write(serverSocket,mess,sizeof(messageToServer));
+void sendMoveToServer( MessageToServer* mess) {
+    int n = write(serverSocket,mess,sizeof(MessageToServer));
     if (n < 0)
         printf("ERROR sending player title string\n");
 }
 
-messageFromServer* getMessageFromServer() {
-    messageFromServer* message = malloc(sizeof(messageFromServer));
+MessageFromServer* getMessageFromServer() {
+    MessageFromServer* message = malloc(sizeof(MessageFromServer));
     int n;
-    n = read(serverSocket,message,sizeof(messageFromServer));
+    n = read(serverSocket,message,sizeof(MessageFromServer));
     if (n < 0)
             printf("ERROR receiving message\n");
     // get message
