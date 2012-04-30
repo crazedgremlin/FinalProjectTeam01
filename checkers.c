@@ -659,6 +659,11 @@ void mouseFunc(int button, int state, int x, int y) {
 
                     board[dragXTo][dragYTo] = dragType;
 
+
+
+                    // TODO Send move to server
+                    // TODO Listen for other player's move
+
                 } else {
                     printf("INVALID!\n");
                     board[dragXFrom][dragYFrom] = dragType;
