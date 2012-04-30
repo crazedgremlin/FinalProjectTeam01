@@ -13,7 +13,8 @@ DESCRIPTION
 OPTIONS
 
     --nVal, -n
-        Specifies the number of squares on each side of the game board.
+        Specifies the number of squares on each side of the game board.  This
+        is a server-only option; clients obtain the board size from the server.
 
     --server, -s
         Specifies to run in server mode, which is the default.

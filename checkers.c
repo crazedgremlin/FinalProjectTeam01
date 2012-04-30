@@ -64,7 +64,6 @@ typedef struct {
 
 // command line options
 enum modeType mode = SERVER;
-enum player me = NO_PLAYER;
 int numSquaresOnSide = -1;
 int port = 9020;
 
@@ -82,7 +81,7 @@ char **board;
 char titleStr[255];
 
 // communication
-int serverSocket, playerOneSock, playerTwoSock,
+int serverSocket, playerOneSock, playerTwoSock;
 
 bool procArgs(int argc, char* argv[]);
 void init();
@@ -114,7 +113,7 @@ int whoWon() {
 
 
 void sendMoveToServer( messageToServer* mess) {
-    n = write(serverSocket,mess,sizeof(messageToServer));
+    int n = write(serverSocket,mess,sizeof(messageToServer));
     if (n < 0)
         printf("ERROR sending player title string\n");
 }
@@ -152,8 +151,6 @@ int main(int argc, char* argv[]) {
         glutDisplayFunc(drawScreen);
             
         glutMainLoop();
-
-
 
         // Listen for message
         // If message.isMyTurn
@@ -725,6 +722,7 @@ int serverAddPlayer(char* playerTitle, int serverSocket, struct sockaddr_in clie
     int clientSockFd;
     int clilen;
     int n;
+    
 
     // listen for incoming connection from client 
     listen(serverSocket,1);
@@ -740,6 +738,10 @@ int serverAddPlayer(char* playerTitle, int serverSocket, struct sockaddr_in clie
     n = write(clientSockFd,playerTitle,strlen(playerTitle));
     if (n < 0) 
         printf("ERROR sending player title string\n");
+
+    n = write(clientSockFd,&numSquaresOnSide, sizeof(int));
+    if (n < 0)
+        printf("ERROR sending board size to client");
 
     return clientSockFd;
 
@@ -783,6 +785,14 @@ void initSockets() {
         n = read(serverSocket,&titleStr[0],255);
         if (n < 0) 
             printf("ERROR receiving title string\n");
+
+
+        n = read(serverSocket,&numSquaresOnSide, sizeof(int));
+        if (n < 0)
+            printf("ERROR receiving board size\n");
+        else
+            printf("Received size of board: %d\n", numSquaresOnSide);
+
 
         printf("RECEIVED: '%s'\n", titleStr);
 
