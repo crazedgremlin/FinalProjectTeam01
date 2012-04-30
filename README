@@ -16,6 +16,9 @@ OPTIONS
         Specifies the number of squares on each side of the game board.  This
         is a server-only option; clients obtain the board size from the server.
 
+    --address, -a
+        Specifies the address that the client should connect to
+
     --server, -s
         Specifies to run in server mode, which is the default.
 
@@ -28,6 +31,8 @@ OPTIONS
 
     --help, -h
         Display the help page.
+
+
 
 
 EXAMPLES

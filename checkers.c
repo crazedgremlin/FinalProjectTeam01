@@ -66,6 +66,7 @@ typedef struct {
 enum modeType mode = SERVER;
 int numSquaresOnSide = -1;
 int port = 9020;
+char* serverAddr = "localhost";
 
 // display options
 bool drawLabels = false;
@@ -164,7 +165,6 @@ int main(int argc, char* argv[]) {
     
         initSockets();
         
-
         bool whoseTurn;
         bool gameOver = false;
         int winner;
@@ -220,6 +220,8 @@ bool procArgs(int argc, char* argv[]) {
             mode = CLIENT;
         } else if (!strcmp(argLabel, "--port") || !strcmp(argLabel, "-p")) {
             port = atoi(argVal);
+        } else if (!strcmp(argLabel, "--address") || !strcmp(argLabel, "-a")) {
+            serverAddr = argVal;
         }
 
         argNum++;
@@ -768,7 +770,7 @@ void initSockets() {
         if (serverSocket < 0) 
             printf("ERROR opening socket\n");
 
-        server = gethostbyname("localhost");
+        server = gethostbyname(serverAddr);
         
         if (server == NULL) {
             fprintf(stderr,"ERROR, no such host\n");
