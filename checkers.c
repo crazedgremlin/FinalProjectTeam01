@@ -208,7 +208,6 @@ int main(int argc, char* argv[]) {
 
 	        getMessageFromClient(message, currTurnSocket);
             sendMoveToClient(message, waitTurnSocket);
-            printf("sent\n");
 
 
             displayMessage(message);
@@ -633,6 +632,7 @@ bool isValidMove(enum player p, bool isKing, int x1, int y1, int x2, int y2) {
 
                 printf("Piece at (%d, %d) was taken.\n", bx, by);
                 board[bx][by] = ' ';
+                glutPostRedisplay();
                 return true;
             }
         }
@@ -704,29 +704,18 @@ void mouseFunc(int button, int state, int x, int y) {
                     message->y1 = dragYFrom;
                     message->x2 = dragXTo;
                     message->y2 = dragYTo;
-                    printf("a\n");
                     sendMoveToServer(message);
-                    printf("b\n");
                     bool myTurn = false;
                     do
                     {
-                    	printf("c\n");
-                    	getMessageFromServer(message);
-                    	printf("x1 = %d\n", message->x1 );
-                    	printf("y1 = %d\n", message->y1 );
-                    	printf("x2 = %d\n", message->x2 );
-                    	printf("y2 = %d\n", message->y2 );
+                    	getMessageFromServer(message); 
                         fflush(stdout);
-
-            		isValidMove(opponent, true, message->x1, message->y1, message->x2, message->y2);      
-                    
-                    printf("d\n");      		
+            		isValidMove(opponent, true, message->x1, message->y1, message->x2, message->y2);      		
             		char dragType = board[message->x1][message->y1];
            		board[message->x2][message->y2] = dragType;
             		board[message->x1][message->y1] = ' ';
                     	myTurn = true;//message->isMyTurn;
                     }while(!myTurn);
-		    printf("e\n");
                 } else {
                     printf("INVALID!\n");
                     board[dragXFrom][dragYFrom] = dragType;
