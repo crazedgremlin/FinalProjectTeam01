@@ -662,9 +662,11 @@ void mouseFunc(int button, int state, int x, int y) {
                 dragging = true;
                 decideBoardCoords(x, y, &dragXFrom, &dragYFrom);
                 dragType = board[dragXFrom][dragYFrom];
-
+		
                 // if this square is off
-                if (dragType == ' ') {
+                if (dragType == ' ' || (((me == PLAYER_ONE) && (dragType == 'X' || dragType == 'K' )) 
+                  || ((me == PLAYER_TWO) && (dragType == 'Y' || dragType == 'L' )))){
+                    dragType = ' ';	
                     dragging = false;
                     return;
                 }
@@ -710,7 +712,7 @@ void mouseFunc(int button, int state, int x, int y) {
                     {
                     	getMessageFromServer(message); 
                         fflush(stdout);
-            		isValidMove(opponent, true, message->x1, message->y1, message->x2, message->y2);      		
+            		isValidMove(me, true, message->x1, message->y1, message->x2, message->y2);      		
             		char dragType = board[message->x1][message->y1];
            		board[message->x2][message->y2] = dragType;
             		board[message->x1][message->y1] = ' ';
