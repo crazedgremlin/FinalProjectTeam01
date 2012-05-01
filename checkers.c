@@ -746,7 +746,7 @@ void mouseFunc(int button, int state, int x, int y) {
                     {
                         */
 
-                    if (numChecksOne != 0 || numChecksTwo != 0) {
+                    if (numChecksOne != 0 && numChecksTwo != 0) {
                         getMessageFromServer(message); 
                         fflush(stdout);
                         isValidMove(me, true, message->x1, message->y1, message->x2, message->y2);      		
