@@ -396,6 +396,15 @@ void drawScreen() {
 
     // draw the current state of the game
     drawBoard();
+	
+	// draw the current state of the game
+	if(numChecksOne == 0){
+		drawWin(2);
+		
+	} else if (numChecksTwo == 0) {
+		drawWin(1);
+	}
+    drawWin();
 
     // flushes all unfinished drawing commands
     glFlush();
@@ -549,6 +558,21 @@ void drawReesesCup(int x, int y, int radius) {
 
 }
 
+
+//Draw Win
+
+void drawWin(int player) {
+	
+	if(p ==1){
+	drawString("Player 1 Wins!!!", 100, 100);
+	} else{
+	drawString("Player 2 Wins!!!", 100, 100);
+	}
+	
+}
+
+
+
 /*
  Draws a king at (x, y) with the specified radius.
  */
@@ -630,11 +654,9 @@ bool isValidMove(enum player p, bool isKing, int x1, int y1, int x2, int y2) {
                 (p == PLAYER_TWO && (jumped == 'X' || jumped == 'K'))) {
 
                 printf("Piece at (%d, %d) was taken.\n", bx, by);
-<<<<<<< HEAD
                 board[bx][by] = ' ';
                 glutPostRedisplay();
                 return true;
-=======
 
                 
 				if (p == PLAYER_ONE) {
@@ -648,7 +670,6 @@ bool isValidMove(enum player p, bool isKing, int x1, int y1, int x2, int y2) {
 				board[bx][by] = ' ';
 				return true;
 				
->>>>>>> Started rebuilding my day's work
             }
         }
     }
@@ -780,7 +801,7 @@ void drawString(char* str, int x, int y) {
     int len;
     
     // set color
-    glColor3f(0.0, 1.0, 0.0);
+    glColor3f(1.0, 1.0, 1.0);
     
     // set position
     glRasterPos2i(x, y);
@@ -788,7 +809,7 @@ void drawString(char* str, int x, int y) {
     // draw each character
     len = strlen(str);
     for (i=0; i<len; i++) {
-        glutBitmapCharacter(GLUT_BITMAP_9_BY_15, str[i]);
+        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, str[i]);
     }
 
 }
