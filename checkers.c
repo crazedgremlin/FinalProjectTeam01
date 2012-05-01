@@ -177,12 +177,12 @@ int main(int argc, char* argv[]) {
         int winner;
         while (!gameOver) {
             whoseTurn = !whoseTurn;
-            
+                
             // make a message for player whose turn it is
             // send message
             // listen for reply
             // send that answer to the other player
-
+	
 
             if (isGameOver()) {
                 winner = whoWon();
@@ -659,7 +659,7 @@ void mouseFunc(int button, int state, int x, int y) {
 
                     board[dragXTo][dragYTo] = dragType;
 
-
+		    glutPostRedisplay();
 
                     // TODO Send move to server
                     // TODO Listen for other player's move
@@ -669,6 +669,13 @@ void mouseFunc(int button, int state, int x, int y) {
                     message->x2 = dragXTo;
                     message->y2 = dragYTo;
                     sendMoveToServer(message);
+                    bool myTurn = false;
+                    MessageFromServer* messageFromServer = malloc(sizeof(MessageFromServer));
+                    do
+                    {
+                    	messageFromServer = getMessageFromServer();
+                    	myTurn = messageFromServer->isMyTurn;
+                    }while(!myTurn);
 
                 } else {
                     printf("INVALID!\n");
