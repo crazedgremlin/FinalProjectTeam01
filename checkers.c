@@ -73,8 +73,8 @@ int dragXFrom, dragYFrom;
 int mouseX, mouseY;
 
 //Game statistics
-int numChecksOne = 12;
-int numChecksTwo = 12;
+int numChecksOne;
+int numChecksTwo;
 int isGameOver = -1;
 
 // other globals
@@ -905,7 +905,9 @@ void initSockets() {
 		
 		if(numSquaresOnSide%2 ==0){
 			numChecksOne = ((numSquaresOnSide/2) -1) * (numSquaresOnSide/2);
+			numChecksTwo = ((numSquaresOnSide/2) -1) * (numSquaresOnSide/2);
 		} else{
+			numChecksOne = ((numSquaresOnSide/2) * (numSquaresOnSide/2)) + ((numSquaresOnSide/2)/2) ;
 			numChecksTwo = ((numSquaresOnSide/2) * (numSquaresOnSide/2)) + ((numSquaresOnSide/2)/2) ;
 		}
 		
