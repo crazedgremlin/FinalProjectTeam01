@@ -122,26 +122,20 @@ void sendMoveToClient( Message* mess, int clientSocket) {
         printf("ERROR sending move to server \n");
 }
 
-Message* getMessageFromServer() {
-    Message* message = malloc(sizeof(Message));
+void getMessageFromServer(Message* message) {
     int n;
     n = read(serverSocket,message,sizeof(Message));
     if (n < 0)
             printf("ERROR receiving message from server\n");
     // get message
-
-    return message;
 }
 
-Message* getMessageFromClient(int clientSocket) {
-    Message* message = malloc(sizeof(Message));
+void getMessageFromClient(Message* message, int clientSocket) {
     int n;
     n = read(clientSocket,message,sizeof(Message));
     if (n < 0)
             printf("ERROR receiving message from client\n");
     // get message
-
-    return message;	
 }
 
 int main(int argc, char* argv[]) {
@@ -168,8 +162,8 @@ int main(int argc, char* argv[]) {
         //player 2 listens for player 1 move 
         if(me == PLAYER_TWO)
         {
-        	
-            Message* message = getMessageFromServer();
+        	Message* message;
+            getMessageFromServer(message);
             isValidMove(opponent, true, message->x1, message->y1, message->x2, message->y2);
             char dragType = board[message->x1][message->y1];
             board[message->x2][message->y2] = dragType;
@@ -202,7 +196,9 @@ int main(int argc, char* argv[]) {
             // send message
             // listen for reply
             // send that answer to the other player
-	    Message* message = getMessageFromClient(currTurnSocket);
+            Message* message;
+
+	        getMessageFromClient(message, currTurnSocket);
             sendMoveToClient(message, waitTurnSocket);
             printf("sent\n");
             isValidMove(opponent, true, message->x1, message->y1, message->x2, message->y2);
@@ -704,12 +700,16 @@ void mouseFunc(int button, int state, int x, int y) {
                     do
                     {
                     	printf("c\n");
-                    	message = getMessageFromServer();
-                    	printf("%d\n", message->x1 );
-                    	printf("%d\n", message->y1 );
-                    	printf("%d\n", message->x2 );
-                    	printf("%d\n", message->y2 );
-            		isValidMove(opponent, true, message->x1, message->y1, message->x2, message->y2);            		
+                    	getMessageFromServer(message);
+                    	printf("x1 = %d\n", message->x1 );
+                    	printf("y1 = %d\n", message->y1 );
+                    	printf("x2 = %d\n", message->x2 );
+                    	printf("y2 = %d\n", message->y2 );
+                        fflush(stdout);
+
+            		isValidMove(opponent, true, message->x1, message->y1, message->x2, message->y2);      
+                    
+                    printf("d\n");      		
             		char dragType = board[message->x1][message->y1];
            		board[message->x2][message->y2] = dragType;
             		board[message->x1][message->y1] = ' ';
