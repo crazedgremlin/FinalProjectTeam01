@@ -72,6 +72,11 @@ char dragType = ' ';
 int dragXFrom, dragYFrom;
 int mouseX, mouseY;
 
+//Game statistics
+int numChecksOne = 12;
+int numChecksTwo = 12;
+int isGameOver = -1;
+
 // other globals
 char **board;
 char titleStr[255];
@@ -108,13 +113,6 @@ void displayMessage(Message* mesg) {
     printf("mesg->y2 = %d\n\n", mesg->y2);
 }
 
-bool isGameOver() {
-    return false;
-}
-
-int whoWon() {
-    return -1;
-}
 
 
 void sendMoveToServer( Message* mess) {
@@ -197,7 +195,7 @@ int main(int argc, char* argv[]) {
         int currTurnSocket = playerOneSock;
         int waitTurnSocket = playerTwoSock;
         Message* message = malloc(sizeof(Message));
-        while (!gameOver) {
+        while (isGameOver == -1) {
             
                 
             // make a message for player whose turn it is
@@ -325,6 +323,7 @@ void init() {
     // allocate memory for n pointers to char arrays
     board = initMatrix(numSquaresOnSide, numSquaresOnSide);
 
+	
 
     // fill in the board character array
     //      X       represents player 1
@@ -631,9 +630,25 @@ bool isValidMove(enum player p, bool isKing, int x1, int y1, int x2, int y2) {
                 (p == PLAYER_TWO && (jumped == 'X' || jumped == 'K'))) {
 
                 printf("Piece at (%d, %d) was taken.\n", bx, by);
+<<<<<<< HEAD
                 board[bx][by] = ' ';
                 glutPostRedisplay();
                 return true;
+=======
+
+                
+				if (p == PLAYER_ONE) {
+					numChecksTwo--;
+					printf("Player one has %d checkers. Player two has %d checkers.\n", numChecksOne, numChecksTwo);
+				} else{
+					numChecksOne--;
+					printf("Player one has %d checkers. Player two has %d checkers.\n", numChecksOne, numChecksTwo);
+				}
+				
+				board[bx][by] = ' ';
+				return true;
+				
+>>>>>>> Started rebuilding my day's work
             }
         }
     }
