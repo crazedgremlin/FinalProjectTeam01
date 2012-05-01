@@ -202,16 +202,16 @@ int main(int argc, char* argv[]) {
             // send message
             // listen for reply
             // send that answer to the other player
-	    Message* message = getMessageFromClient(playerOneSock);
+	    Message* message = getMessageFromClient(currTurnSocket);
             sendMoveToClient(message, waitTurnSocket);
-            bool myTurn = false;
-           /* MessageFromServer* messageFromServer = malloc(sizeof(Message));
-            do
-            {
-              	messageFromServer = getMessageFromServer();
-                myTurn = messageFromServer->isMyTurn;
-            }while(!myTurn);*/	    
-
+            printf("sent\n");
+            isValidMove(opponent, true, message->x1, message->y1, message->x2, message->y2);
+            char dragType = board[message->x1][message->y1];
+            board[message->x2][message->y2] = dragType;
+            board[message->x1][message->y1] = ' ';
+            int holder = currTurnSocket;
+            currTurnSocket = waitTurnSocket;
+            waitTurnSocket = holder;
             if (isGameOver()) {
                 winner = whoWon();
 
@@ -697,15 +697,25 @@ void mouseFunc(int button, int state, int x, int y) {
                     message->y1 = dragYFrom;
                     message->x2 = dragXTo;
                     message->y2 = dragYTo;
+                    printf("a\n");
                     sendMoveToServer(message);
+                    printf("b\n");
                     bool myTurn = false;
-                    Message* messageFromServer = malloc(sizeof(Message));
                     do
                     {
-                    	messageFromServer = getMessageFromServer();
-                    	myTurn = messageFromServer->isMyTurn;
+                    	printf("c\n");
+                    	message = getMessageFromServer();
+                    	printf("%d\n", message->x1 );
+                    	printf("%d\n", message->y1 );
+                    	printf("%d\n", message->x2 );
+                    	printf("%d\n", message->y2 );
+            		isValidMove(opponent, true, message->x1, message->y1, message->x2, message->y2);            		
+            		char dragType = board[message->x1][message->y1];
+           		board[message->x2][message->y2] = dragType;
+            		board[message->x1][message->y1] = ' ';
+                    	myTurn = true;//message->isMyTurn;
                     }while(!myTurn);
-
+		    printf("e\n");
                 } else {
                     printf("INVALID!\n");
                     board[dragXFrom][dragYFrom] = dragType;
