@@ -101,6 +101,13 @@ int serverAddPlayer(char* playerTitle, int serverSocket, struct sockaddr_in clie
 void initSockets();
 
 
+void displayMessage(Message* mesg) {
+    printf("mesg->x1 = %d\n", mesg->x1);
+    printf("mesg->y1 = %d\n", mesg->y1);
+    printf("mesg->x2 = %d\n", mesg->x2);
+    printf("mesg->y2 = %d\n\n", mesg->y2);
+}
+
 bool isGameOver() {
     return false;
 }
@@ -189,6 +196,7 @@ int main(int argc, char* argv[]) {
         enum player whoseTurn = PLAYER_ONE;
         int currTurnSocket = playerOneSock;
         int waitTurnSocket = playerTwoSock;
+        Message* message = malloc(sizeof(Message));
         while (!gameOver) {
             
                 
@@ -196,24 +204,27 @@ int main(int argc, char* argv[]) {
             // send message
             // listen for reply
             // send that answer to the other player
-            Message* message;
+
 
 	        getMessageFromClient(message, currTurnSocket);
             sendMoveToClient(message, waitTurnSocket);
             printf("sent\n");
+
+
+            displayMessage(message);
+
+/*
             isValidMove(opponent, true, message->x1, message->y1, message->x2, message->y2);
-            char dragType = board[message->x1][message->y1];
-            board[message->x2][message->y2] = dragType;
+            board[message->x2][message->y2] = board[message->x1][message->y1];
             board[message->x1][message->y1] = ' ';
+*/
+
             int holder = currTurnSocket;
             currTurnSocket = waitTurnSocket;
             waitTurnSocket = holder;
-            if (isGameOver()) {
-                winner = whoWon();
 
-                // send youWon message to winner
-                // send youLose message to loser
-            }
+
+
         }
     }
 
