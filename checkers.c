@@ -655,10 +655,10 @@ bool isValidMove(enum player p, bool isKing, int x1, int y1, int x2, int y2) {
 
                 printf("Piece at (%d, %d) was taken.\n", bx, by);
 				if (p == PLAYER_ONE) {
-					numChecksTwo--;
+					numChecksOne--;
 					printf("Player one has %d checkers. Player two has %d checkers.\n", numChecksOne, numChecksTwo);
 				} else{
-					numChecksOne--;
+					numChecksTwo--;
 					printf("Player one has %d checkers. Player two has %d checkers.\n", numChecksOne, numChecksTwo);
 				}
 				
@@ -741,17 +741,31 @@ void mouseFunc(int button, int state, int x, int y) {
                     message->x2 = dragXTo;
                     message->y2 = dragYTo;
                     sendMoveToServer(message);
-                    bool myTurn = false;
+                    /*bool myTurn = false;
                     do
                     {
-                    	getMessageFromServer(message); 
+                        */
+
+                    if (numChecksOne != 0 || numChecksTwo != 0) {
+                        getMessageFromServer(message); 
                         fflush(stdout);
-            		isValidMove(me, true, message->x1, message->y1, message->x2, message->y2);      		
-            		char dragType = board[message->x1][message->y1];
-           		board[message->x2][message->y2] = dragType;
-            		board[message->x1][message->y1] = ' ';
-                    	myTurn = true;//message->isMyTurn;
-                    }while(!myTurn);
+                        isValidMove(me, true, message->x1, message->y1, message->x2, message->y2);      		
+                        char dragType = board[message->x1][message->y1];
+
+                        // promote to king?
+                        if (dragType == 'X' && message->y2 == numSquaresOnSide-1)
+                            dragType = 'K';
+                        else if (dragType == 'Y' && message->y2 == 0) {
+                            dragType = 'L';
+                        }
+
+
+                        board[message->x2][message->y2] = dragType;
+                        board[message->x1][message->y1] = ' ';
+                            //myTurn = true;//message->isMyTurn;
+                    }
+
+                    //}while(!myTurn);
                 } else {
                     printf("INVALID!\n");
                     board[dragXFrom][dragYFrom] = dragType;
