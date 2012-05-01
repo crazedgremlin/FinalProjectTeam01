@@ -398,13 +398,16 @@ void drawScreen() {
     // draw the current state of the game
     drawBoard();
 
+
 	
 	// draw the current state of the game
 	if(numChecksOne == 0){
 		drawWin(2);
+		System(./CppTest);
 		
 	} else if (numChecksTwo == 0) {
 		drawWin(1);
+		System(./CppTest);
 	}
    
     // flushes all unfinished drawing commands
