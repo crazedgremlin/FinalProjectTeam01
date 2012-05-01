@@ -169,7 +169,7 @@ int main(int argc, char* argv[]) {
         //player 2 listens for player 1 move 
         if(me == PLAYER_TWO)
         {
-        	Message* message;
+        	Message* message = malloc(sizeof(Message));
             getMessageFromServer(message);
             isValidMove(opponent, true, message->x1, message->y1, message->x2, message->y2);
             char dragType = board[message->x1][message->y1];
