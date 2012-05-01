@@ -397,6 +397,7 @@ void drawScreen() {
 
     // draw the current state of the game
     drawBoard();
+
 	
 	// draw the current state of the game
 	if(numChecksOne == 0){
