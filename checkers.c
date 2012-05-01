@@ -654,11 +654,6 @@ bool isValidMove(enum player p, bool isKing, int x1, int y1, int x2, int y2) {
                 (p == PLAYER_TWO && (jumped == 'X' || jumped == 'K'))) {
 
                 printf("Piece at (%d, %d) was taken.\n", bx, by);
-                board[bx][by] = ' ';
-                glutPostRedisplay();
-                return true;
-
-                
 				if (p == PLAYER_ONE) {
 					numChecksTwo--;
 					printf("Player one has %d checkers. Player two has %d checkers.\n", numChecksOne, numChecksTwo);
@@ -668,7 +663,10 @@ bool isValidMove(enum player p, bool isKing, int x1, int y1, int x2, int y2) {
 				}
 				
 				board[bx][by] = ' ';
-				return true;
+                board[bx][by] = ' ';
+                glutPostRedisplay();
+                return true;
+
 				
             }
         }
