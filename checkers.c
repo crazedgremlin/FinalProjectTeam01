@@ -76,6 +76,7 @@ int mouseX, mouseY;
 char **board;
 char titleStr[255];
 enum player me;
+enum player opponent;
 
 // communication
 int serverSocket, playerOneSock, playerTwoSock;
@@ -167,7 +168,12 @@ int main(int argc, char* argv[]) {
         //player 2 listens for player 1 move 
         if(me == PLAYER_TWO)
         {
-            getMessageFromServer();
+        	
+            Message* message = getMessageFromServer();
+            isValidMove(opponent, true, message->x1, message->y1, message->x2, message->y2);
+            char dragType = board[message->x1][message->y1];
+            board[message->x2][message->y2] = dragType;
+            board[message->x1][message->y1] = ' ';        
         }
         
         glutMainLoop();
@@ -196,8 +202,7 @@ int main(int argc, char* argv[]) {
             // send message
             // listen for reply
             // send that answer to the other player
-	    getMessageFromClient(playerOneSock);
-	    Message* message = malloc(sizeof(Message));
+	    Message* message = getMessageFromClient(playerOneSock);
             sendMoveToClient(message, waitTurnSocket);
             bool myTurn = false;
            /* MessageFromServer* messageFromServer = malloc(sizeof(Message));
@@ -687,6 +692,7 @@ void mouseFunc(int button, int state, int x, int y) {
                     // TODO Send move to server
                     // TODO Listen for other player's move
                     Message* message = malloc(sizeof(Message));
+                             
                     message->x1 = dragXFrom;
                     message->y1 = dragYFrom;
                     message->x2 = dragXTo;
@@ -854,9 +860,11 @@ void initSockets() {
 	if(!strcmp(titleStr,"Player One"))
 	{
 		me = PLAYER_ONE;
+		opponent = PLAYER_TWO;
 	}else 
 	{
 		me = PLAYER_TWO;
+	        opponent = PLAYER_ONE;
 	}
         printf("RECEIVED: '%s'\n", titleStr);
 
