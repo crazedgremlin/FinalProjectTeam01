@@ -93,6 +93,7 @@ void drawScreen();
 void drawBoard();
 void drawPiece(char pieceType, int x, int y);
 void drawKing(float x, float y, int scale);
+void drawWin(int player);
 void drawReesesCup(int x, int y, int radius);
 bool isValidMove(enum player p, bool isKing, int x1, int y1, int x2, int y2);
 enum player determinePlayer(char piece);
@@ -404,8 +405,7 @@ void drawScreen() {
 	} else if (numChecksTwo == 0) {
 		drawWin(1);
 	}
-    drawWin();
-
+   
     // flushes all unfinished drawing commands
     glFlush();
 }
@@ -904,6 +904,13 @@ void initSockets() {
             printf("ERROR receiving board size\n");
         else
             printf("Received size of board: %d\n", numSquaresOnSide);
+		
+		if(numSquaresOnSide%2 ==0){
+			numChecksOne = ((numSquaresOnSide/2) -1) * (numSquaresOnSide/2);
+		} else{
+			numChecksTwo = ((numSquaresOnSide/2) * (numSquaresOnSide/2)) + ((numSquaresOnSide/2)/2) ;
+		}
+		
 
 	if(!strcmp(titleStr,"Player One"))
 	{
