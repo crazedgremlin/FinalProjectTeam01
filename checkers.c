@@ -16,8 +16,8 @@
 #endif
 
 
-const int WIDTH = 320;
-const int HEIGHT = 320;
+const int WIDTH = 500;
+const int HEIGHT = 500;
 const int PI = 3.1415926f;
 const char* HELP_STR =
 "ARGUMENTS\n\n"
@@ -568,9 +568,9 @@ void drawReesesCup(int x, int y, int radius) {
 void drawWin(int p) {
 	
 	if(p ==1){
-	drawString("Player 1 Wins!!!", 100, 100);
+	drawString("Player 1 Wins!!!", 100, HEIGHT/2);
 	} else{
-	drawString("Player 2 Wins!!!", 100, 100);
+	drawString("Player 2 Wins!!!", 100, HEIGHT/2);
 	}
 	
 }
