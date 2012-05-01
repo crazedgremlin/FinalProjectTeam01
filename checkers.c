@@ -403,11 +403,17 @@ void drawScreen() {
 	// draw the current state of the game
 	if(numChecksOne == 0){
 		drawWin(2);
-		System("./CppTest");
+        if (me == PLAYER_TWO) {
+    		system("./CppTest");
+            exit(0);
+        }
 		
 	} else if (numChecksTwo == 0) {
 		drawWin(1);
-		System("./CppTest");
+        if (me == PLAYER_ONE) {
+    		system("./CppTest");
+            exit(0);
+        }
 	}
    
     // flushes all unfinished drawing commands
