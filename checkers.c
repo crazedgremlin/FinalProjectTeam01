@@ -561,7 +561,7 @@ void drawReesesCup(int x, int y, int radius) {
 
 //Draw Win
 
-void drawWin(int player) {
+void drawWin(int p) {
 	
 	if(p ==1){
 	drawString("Player 1 Wins!!!", 100, 100);
