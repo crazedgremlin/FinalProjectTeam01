@@ -49,17 +49,12 @@ enum modeType {
 
 
 typedef struct {
-    // move from this player sent to server
-    int x1, y1, x2, y2;
-} MessageToServer;
-
-typedef struct {
     // move from other player
     int x1, y1, x2, y2;
 
     // if isMyTurn is False, game is over
     bool isMyTurn;
-} MessageFromServer;
+} Message;
 
 
 // command line options
@@ -114,21 +109,38 @@ int whoWon() {
 }
 
 
-void sendMoveToServer( MessageToServer* mess) {
-    int n = write(serverSocket,mess,sizeof(MessageToServer));
+void sendMoveToServer( Message* mess) {
+    int n = write(serverSocket,mess,sizeof(Message));
     if (n < 0)
         printf("ERROR sending move to server \n");
 }
 
-MessageFromServer* getMessageFromServer() {
-    MessageFromServer* message = malloc(sizeof(MessageFromServer));
-    int n;
-    n = read(serverSocket,message,sizeof(MessageFromServer));
+void sendMoveToClient( Message* mess, int clientSocket) {
+    int n = write(clientSocket,mess,sizeof(Message));
     if (n < 0)
-            printf("ERROR receiving message\n");
+        printf("ERROR sending move to server \n");
+}
+
+Message* getMessageFromServer() {
+    Message* message = malloc(sizeof(Message));
+    int n;
+    n = read(serverSocket,message,sizeof(Message));
+    if (n < 0)
+            printf("ERROR receiving message from server\n");
     // get message
 
     return message;
+}
+
+Message* getMessageFromClient(int clientSocket) {
+    Message* message = malloc(sizeof(Message));
+    int n;
+    n = read(clientSocket,message,sizeof(Message));
+    if (n < 0)
+            printf("ERROR receiving message from client\n");
+    // get message
+
+    return message;	
 }
 
 int main(int argc, char* argv[]) {
@@ -172,17 +184,28 @@ int main(int argc, char* argv[]) {
     
         initSockets();
         
-        bool whoseTurn;
         bool gameOver = false;
         int winner;
+        enum player whoseTurn = PLAYER_ONE;
+        int currTurnSocket = playerOneSock;
+        int waitTurnSocket = playerTwoSock;
         while (!gameOver) {
-            whoseTurn = !whoseTurn;
+            
                 
             // make a message for player whose turn it is
             // send message
             // listen for reply
             // send that answer to the other player
-	
+	    getMessageFromClient(playerOneSock);
+	    Message* message = malloc(sizeof(Message));
+            sendMoveToClient(message, waitTurnSocket);
+            bool myTurn = false;
+           /* MessageFromServer* messageFromServer = malloc(sizeof(Message));
+            do
+            {
+              	messageFromServer = getMessageFromServer();
+                myTurn = messageFromServer->isMyTurn;
+            }while(!myTurn);*/	    
 
             if (isGameOver()) {
                 winner = whoWon();
@@ -663,14 +686,14 @@ void mouseFunc(int button, int state, int x, int y) {
 
                     // TODO Send move to server
                     // TODO Listen for other player's move
-                    MessageToServer* message = malloc(sizeof(MessageToServer));
+                    Message* message = malloc(sizeof(Message));
                     message->x1 = dragXFrom;
                     message->y1 = dragYFrom;
                     message->x2 = dragXTo;
                     message->y2 = dragYTo;
                     sendMoveToServer(message);
                     bool myTurn = false;
-                    MessageFromServer* messageFromServer = malloc(sizeof(MessageFromServer));
+                    Message* messageFromServer = malloc(sizeof(Message));
                     do
                     {
                     	messageFromServer = getMessageFromServer();
